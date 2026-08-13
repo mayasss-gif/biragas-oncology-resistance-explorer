@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>BiRAGAS Oncology Resistance Explorer</title>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<style>
+  :root{--navy:#1C2B4C;--gold:#C9A96A;--red:#C8102E;--teal:#0A6E5E;--ink:#1a2233;--muted:#5b6472;
+        --bg:#f5f6f8;--card:#fff;--line:#e6e9ef}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:var(--ink);background:var(--bg)}
+  header{background:linear-gradient(135deg,#16223e,#1C2B4C 60%,#243a66);color:#fff;padding:20px 26px}
+  .brand{display:flex;align-items:center;gap:16px}
+  .brand img{height:42px}
+  .brand h1{font-size:20px;margin:0;letter-spacing:.3px}
+  .brand .dot{color:var(--red)}
+  .tag{color:#cdd6e6;font-size:13px;margin-top:4px}
+  .wrap{max-width:1180px;margin:0 auto;padding:22px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;
+        box-shadow:0 1px 3px rgba(20,30,60,.05)}
+  .steps{display:grid;grid-template-columns:1fr;gap:14px}
+  .step{display:flex;gap:12px;align-items:flex-start}
+  .num{flex:none;width:26px;height:26px;border-radius:50%;background:var(--navy);color:#fff;font-weight:700;
+       font-size:13px;display:flex;align-items:center;justify-content:center;margin-top:2px}
+  .step .body{flex:1;min-width:0}
+  .step label{font-weight:600;color:var(--navy);font-size:14px;display:block;margin-bottom:6px}
+  select,input[type=text]{width:100%;font-size:14px;padding:9px 10px;border:1px solid var(--line);border-radius:9px;background:#fff}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+  button{font-size:14px;cursor:pointer}
+  button.run{background:var(--navy);color:#fff;border:0;border-radius:10px;padding:11px 22px;font-weight:600}
+  button.run:hover{background:#24345c}
+  button.run:disabled{background:#aab3c4;cursor:not-allowed}
+  button.ghost{background:#eef1f6;color:#2a3f66;border:0;border-radius:10px;padding:11px 18px;font-weight:600}
+  button.file{background:#fff;color:var(--navy);border:1.5px dashed var(--gold);border-radius:10px;padding:10px 16px;font-weight:600}
+  .hint{color:var(--muted);font-size:12.5px}
+  .pwchip{margin-top:8px;font-size:12.5px;color:#3a2c08;background:#f7f3ea;border:1px solid #ecdfc0;border-radius:9px;padding:8px 12px;display:none}
+  .pwchip b{color:var(--navy)}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:18px 0}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+  .kpi .n{font-size:24px;font-weight:700;color:var(--navy)}
+  .kpi.hl .n{color:var(--red)}
+  .kpi .l{font-size:12px;color:var(--muted);margin-top:2px}
+  .section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:16px 0;
+           box-shadow:0 1px 3px rgba(20,30,60,.05)}
+  .section h2{margin:0 0 4px;font-size:17px;color:var(--navy)}
+  .section .sub{color:var(--muted);font-size:13px;margin-bottom:12px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:900px){.grid2{grid-template-columns:1fr}}
+  .ctx{display:grid;grid-template-columns:170px 1fr;gap:6px 14px;font-size:13.5px}
+  .ctx .k{color:var(--muted);font-weight:600}
+  .ctx .v{color:var(--ink)}
+  .pill{display:inline-block;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:600;background:#eef2fb;color:#2a3f66}
+  .pill.red{background:#fbe9e9;color:#9c2020}.pill.gold{background:#f7f3ea;color:#8a5a00}.pill.teal{background:#e7f5ee;color:#1a7f4b}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:7px 9px;border-bottom:1px solid var(--line)}
+  th{color:var(--navy);font-size:11px;text-transform:uppercase;letter-spacing:.4px}
+  .badge{display:inline-block;padding:2px 9px;border-radius:11px;font-size:11px;font-weight:600}
+  .up{background:#fbe9e9;color:#9c2020}.down{background:#eef2fb;color:#2a3f66}
+  .src-class{background:#f7f3ea;color:#8a5a00}.src-entry{background:#e7f5ee;color:#1a7f4b}
+  .banner{border-radius:10px;padding:12px 16px;margin:6px 0;font-size:13.5px}
+  .banner.ok{background:#eaf6ee;border:1px solid #bfe3c9;color:#1a7f4b}
+  .banner.warn{background:#fff7e6;border:1px solid #f0d48a;color:#8a5a00}
+  .banner.err{background:#fbe9e9;border:1px solid #e6a6a6;color:#9c2020}
+  .note{color:var(--muted);font-size:12.5px;margin-top:10px}
+  .spin{display:none;text-align:center;padding:40px;color:var(--muted)}
+  .spin.on{display:block}
+  .loader{width:34px;height:34px;border:4px solid #dfe3ea;border-top-color:var(--navy);border-radius:50%;margin:0 auto 12px;animation:sp 1s linear infinite}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .intelgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+  .intelcard{border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:#fbfcfe}
+  .ic-head{font-size:16px;color:var(--navy);margin-bottom:8px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+  .ic-row{font-size:12.5px;margin:4px 0;line-height:1.4}
+  .ic-k{display:inline-block;min-width:96px;color:var(--muted);font-weight:600;vertical-align:top}
+  .ic-links{margin-top:8px;display:flex;gap:12px;flex-wrap:wrap;font-size:12px}
+  .ic-links a{color:var(--teal);text-decoration:none;font-weight:600}
+  .ic-repl{font-size:12.5px;margin:6px 0;line-height:1.4;background:#f0f9f3;border-left:3px solid var(--teal);border-radius:6px;padding:6px 9px}
+  .badge.yes{background:#e7f5ee;color:#1a7f4b}.badge.gold2{background:#f7f3ea;color:#8a5a00}
+  #results{display:none}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap" style="padding:0">
+    <div class="brand">
+      <img id="logo" src="/logo" alt="BiRAGAS" onerror="this.style.display='none'"/>
+      <div>
+        <h1>BiRAGAS Oncology Resistance Explorer<span class="dot">.</span></h1>
+        <div class="tag">Pick a real, cited therapy-resistance pathway &middot; upload a patient DEG / expression file &middot; map it onto the resistance mechanism.</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="card">
+    <div class="steps">
+      <div class="step">
+        <div class="num">1</div>
+        <div class="body">
+          <label>Oncology resistance pathway <span class="hint" id="pwcount"></span></label>
+          <input type="text" id="pwfilter" placeholder="Filter by cancer, drug, gene or resistance class (e.g. NSCLC, osimertinib, EGFR, bypass)&hellip;"/>
+          <select id="pw" size="1" style="margin-top:8px"><option value="">Loading 209 pathways&hellip;</option></select>
+          <div class="pwchip" id="pwchip"></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">2</div>
+        <div class="body">
+          <label>Upload patient file</label>
+          <div class="row">
+            <button class="file" id="filebtn">Choose file&hellip;</button>
+            <span class="hint" id="fname">No file selected. DEG table (DESeq2 / limma) or genes&times;samples matrix: CSV / TSV / TXT / XLSX / XLS, optionally .gz.</span>
+          </div>
+          <input type="file" id="file" accept=".csv,.tsv,.txt,.xlsx,.xls,.gz" style="display:none"/>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">3</div>
+        <div class="body">
+          <div class="row">
+            <button class="run" id="run" disabled>Run analysis</button>
+            <button class="ghost" id="clear">Clear</button>
+            <span class="hint" id="ready">Select a pathway and a file to enable Run.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="msg"></div>
+  <div class="spin" id="spin"><div class="loader"></div>Mapping your data onto the resistance pathway&hellip;</div>
+
+  <div id="results">
+    <div class="section">
+      <h2 id="ctx-title">Medical context</h2>
+      <div class="sub" id="ctx-sub"></div>
+      <div class="ctx" id="ctx"></div>
+    </div>
+
+    <div class="kpis" id="kpis"></div>
+
+    <div class="section">
+      <h2>Resistance mechanism vs. this sample</h2>
+      <div class="sub" id="map-sub"></div>
+      <div class="grid2">
+        <div>
+          <h3 style="margin:2px 0 6px;color:var(--navy);font-size:14px" id="sig-h">Resistance-signature genes altered here</h3>
+          <div style="overflow-x:auto"><table id="sigtab"></table></div>
+        </div>
+        <div id="volcano" style="height:380px"></div>
+      </div>
+      <div class="note" id="honest"></div>
+    </div>
+
+    <div class="section" id="intel-section">
+      <h2>Live target intelligence</h2>
+      <div class="sub">For the resistance-pathway genes altered in this sample, live pulls from <b>Ensembl</b>, <b>ChEMBL</b> (existing drugs + clinical phase), <b>AlphaFold</b> (structure), <b>GTEx</b>, <b>cBioPortal</b> and <b>PubChem</b>. An approved drug here is a ready repurposing lead against this resistance mechanism.</div>
+      <div id="intel"></div>
+    </div>
+
+    <div class="section">
+      <h2>Overall differential landscape</h2>
+      <div class="sub">Top differentially expressed genes in this sample (ranked by |log2FC| &times; -log10 adjusted p). Rows in <b style="color:#8a5a00">gold</b> also sit in the chosen resistance signature.</div>
+      <div style="overflow-x:auto"><table id="drivers"></table></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const NAVY="#1C2B4C",GOLD="#C9A96A",RED="#C8102E",TEAL="#0A6E5E",GREY="#c4cbd6";
+const $=id=>document.getElementById(id);
+let PW=[], FILE=null, CHOSEN="";
+
+// ---------- load pathways ----------
+fetch("/api/pathways").then(r=>r.json()).then(d=>{
+  PW=d.pathways; $("pwcount").textContent="("+d.n+" cited pathways)";
+  buildOptions("");
+}).catch(e=>showMsg("err","Could not load pathways: "+e));
+
+function buildOptions(filter){
+  const f=(filter||"").toLowerCase().trim();
+  const sel=$("pw"); const cur=sel.value;
+  const groups={};
+  PW.forEach(p=>{
+    const hay=(p.cancer_type+" "+p.drug+" "+p.resistance_class+" "+p.pattern+" "+p.site).toLowerCase();
+    if(f&&!hay.includes(f))return;
+    (groups[p.site]=groups[p.site]||[]).push(p);
+  });
+  const sites=Object.keys(groups).sort();
+  let n=0, html='<option value="">'+(f?"Filtered - ":"")+'choose a resistance pathway&hellip;</option>';
+  sites.forEach(s=>{
+    html+='<optgroup label="'+esc(s)+'">';
+    groups[s].forEach(p=>{n++;
+      html+='<option value="'+p.idx+'">'+esc(p.cancer_type+" - "+p.drug+"  ["+p.resistance_class+"]")+'</option>';});
+    html+='</optgroup>';
+  });
+  sel.innerHTML=html;
+  $("pwcount").textContent="("+n+(f?" match"+(n==1?"":"es"):" cited pathways")+")";
+  if([...sel.options].some(o=>o.value===cur))sel.value=cur;
+}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+
+$("pwfilter").oninput=e=>buildOptions(e.target.value);
+$("pw").onchange=()=>{CHOSEN=$("pw").value; showChip(); toggleRun();};
+function showChip(){
+  const p=PW.find(x=>String(x.idx)===String(CHOSEN)); const c=$("pwchip");
+  if(!p){c.style.display="none";return;}
+  c.style.display="block";
+  c.innerHTML=`Selected: <b>${esc(p.cancer_type)}</b> &middot; failed drug <b>${esc(p.drug)}</b> &middot; class <b>${esc(p.resistance_class)}</b> &middot; BiRAGAS pattern <b>${esc(p.pattern)}</b>`;
+}
+
+$("filebtn").onclick=()=>$("file").click();
+$("file").onchange=e=>{FILE=e.target.files[0]||null;
+  $("fname").textContent=FILE?FILE.name:"No file selected.";
+  $("fname").style.color=FILE?"#1a7f4b":""; toggleRun();};
+function toggleRun(){$("run").disabled=!(CHOSEN&&FILE);
+  $("ready").textContent=(CHOSEN&&FILE)?"Ready.":"Select a pathway and a file to enable Run.";}
+
+$("clear").onclick=()=>{CHOSEN="";FILE=null;$("pw").value="";$("pwfilter").value="";$("file").value="";
+  $("fname").textContent="No file selected.";$("fname").style.color="";$("pwchip").style.display="none";
+  buildOptions("");$("results").style.display="none";$("msg").innerHTML="";toggleRun();
+  window.scrollTo({top:0,behavior:"smooth"});};
+
+function showMsg(kind,html){$("msg").innerHTML=`<div class="banner ${kind}">${html}</div>`;}
+
+// ---------- run ----------
+function abToB64(buf){const bytes=new Uint8Array(buf);let bin="";const CH=0x8000;
+  for(let i=0;i<bytes.length;i+=CH)bin+=String.fromCharCode.apply(null,bytes.subarray(i,i+CH));
+  return btoa(bin);}
+$("run").onclick=()=>{
+  if(!(CHOSEN&&FILE))return;
+  $("msg").innerHTML="";$("results").style.display="none";$("spin").classList.add("on");
+  const rd=new FileReader();
+  rd.onload=()=>{
+    fetch("/api/run",{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({data_b64:abToB64(rd.result),filename:FILE.name,pathway_idx:Number(CHOSEN)})})
+      .then(r=>r.json()).then(d=>{$("spin").classList.remove("on");
+        if(d.error){showMsg("err","<b>Could not run:</b> "+esc(d.error));return;}
+        render(d);})
+      .catch(e=>{$("spin").classList.remove("on");showMsg("err","Request failed: "+esc(String(e)));});
+  };
+  rd.readAsArrayBuffer(FILE);
+};
+
+// ---------- render ----------
+function render(d){
+  $("results").style.display="block";
+  const p=d.pathway,k=d.kpis;
+  $("ctx-title").innerHTML=`Medical context &mdash; ${esc(p.cancer_type)}`;
+  $("ctx-sub").innerHTML=`Real, cited therapy-failure entry from the BiRAGAS oncology database (${esc(p.group)} tumor).`;
+  const nct=p.nct?`<a href="https://clinicaltrials.gov/study/${esc(p.nct)}" target="_blank">${esc(p.nct)}</a>`:"n/a";
+  $("ctx").innerHTML=rowsHTML([
+    ["Failed drug / intervention",esc(p.drug)],
+    ["Target / mechanism",esc(p.target_mechanism)],
+    ["Resistance mechanism",`<b>${esc(p.resistance_mechanism)}</b>`],
+    ["Resistance class",`<span class="pill gold">${esc(p.resistance_class)}</span>`],
+    ["BiRAGAS failure pattern",`<span class="pill">${esc(p.biragas_pattern)}</span>`],
+    ["Why it failed",esc(p.outcome)],
+    ["Trial / study",esc(p.trial||"n/a")+(p.sponsor?` &middot; ${esc(p.sponsor)}`:"")],
+    ["NCT",nct+(p.confidence?` &middot; confidence: ${esc(p.confidence)}`:"")],
+    ["Citation",`<span style="font-size:12px;color:#6b7280">${esc(p.citation)}</span>`],
+  ]);
+  // KPIs (meaningful + variable)
+  $("kpis").innerHTML=`
+    <div class="kpi"><div class="n">${k.n_features}</div><div class="l">genes in your file</div></div>
+    <div class="kpi"><div class="n">${k.n_up} / ${k.n_down}</div><div class="l">up / down</div></div>
+    <div class="kpi"><div class="n">${k.n_sig}</div><div class="l">significant (FDR&lt;0.05, |log2FC|&gt;1)</div></div>
+    <div class="kpi hl"><div class="n">${k.signature_hits} / ${k.signature_size}</div><div class="l">resistance-signature genes altered here</div></div>
+    <div class="kpi"><div class="n">${Math.round(k.signature_coverage*100)}%</div><div class="l">signature coverage in this sample</div></div>
+    <div class="kpi"><div class="n">${k.n_druggable||0}</div><div class="l">altered gene(s) with an APPROVED drug</div></div>`;
+  // map sub + banner
+  const sm=d.signature_map;
+  $("map-sub").innerHTML=`How this sample relates to the <b>${esc(sm.resistance_class)}</b> resistance program. `+
+    `<span class="hint">${esc(sm.note)}</span>`;
+  sigTable(sm.hits,d.entry_map.hits);
+  drawVolcano(d.volcano);
+  intelCards(d.target_intel);
+  driversTable(d.drivers);
+  $("honest").textContent=d.honest_note;
+  const hits=sm.n_hits+d.entry_map.n_hits;
+  showMsg(hits>0?"ok":"warn",
+    hits>0? `<b>${hits} resistance-mechanism gene(s) are differentially expressed in this sample.</b> See the table and the highlighted points in the volcano. Real fold-change and p-values; nothing fabricated.`
+          : `<b>None of this resistance mechanism's signature genes are differentially expressed in this sample.</b> That is an honest negative: this patient's DEGs do not overlap the ${esc(sm.resistance_class)} program. The full differential landscape is shown below.`);
+  window.scrollTo({top:$("msg").offsetTop-12,behavior:"smooth"});
+}
+function rowsHTML(pairs){return pairs.map(([k,v])=>`<div class="k">${k}</div><div class="v">${v}</div>`).join("");}
+
+const PHASE={4:"approved drug",3:"phase 3",2:"phase 2",1:"phase 1",0:"preclinical"};
+function intelCards(t){
+  const items=(t||[]).filter(x=>x.live);
+  if(!items.length){$("intel").innerHTML='<div class="hint">No resistance-pathway gene altered in this sample to enrich.</div>';return;}
+  let h='<div class="intelgrid">';
+  items.forEach(x=>{const L=x.live||{},e=L.ensembl||{},c=L.chembl||{},s=L.structure||{},gt=L.gtex||{},lk=L.links||{};
+    const phase=(c.max_phase!=null)?(PHASE[Math.floor(c.max_phase)]||("phase "+c.max_phase)):null;
+    const drugs=(c.drugs||[]).slice(0,4).map(d=>`<span class="chip">${esc(d.name)}${d.max_phase!=null?` (ph ${d.max_phase})`:''}</span>`).join(" ");
+    h+=`<div class="intelcard">
+      <div class="ic-head"><b>${esc(x.gene)}</b> <span class="pill ${x.tier==='signature'?'gold':'teal'}">${esc(x.tier)}</span>
+        <span class="badge ${x.direction==='up'?'up':'down'}">${esc(x.direction)}</span>
+        ${phase?`<span class="badge ${c.max_phase>=4?'yes':'t2'}">${esc(phase)}</span>`:''}</div>
+      <div class="ic-row"><span class="ic-k">Ensembl</span> ${e.ensembl_id?`<a href="${lk.opentargets||'#'}" target="_blank">${esc(e.ensembl_id)}</a> <span class="hint">${esc(e.biotype||'')}${e.chromosome?' &middot; chr'+esc(e.chromosome):''}</span>`:'<span class="hint">n/a</span>'}</div>
+      <div class="ic-row"><span class="ic-k">Existing drugs</span> ${c.is_target?(c.n_drugs?`<b>${c.n_drugs}</b> in ChEMBL &middot; best ${phase||'?'}<br>${drugs}`:'known target, no linked drugs'):'<span class="hint">not a ChEMBL target</span>'}</div>
+      ${x.replacement?`<div class="ic-repl"><span class="ic-k">Rational replacement</span> failed <b>${esc(x.failed_drug)}</b> &rarr; try <b>${x.replacement.drugs.map(esc).join(', ')}</b> ${x.replacement.actionable?'<span class="badge yes">actionable now</span>':(x.replacement.approved?'<span class="badge gold2">approved, contextual</span>':'<span class="badge t2">in trials</span>')}${x.direction==='down'?'<div class="hint">node is down-regulated here, so this agent is contextual, not a direct inhibitor pick</div>':''}</div>`:(c.is_target&&!c.n_drugs?`<div class="ic-repl"><span class="ic-k">Rational replacement</span> <span class="hint">druggable node but no approved agent yet for ${esc(x.gene)}; structure-based design candidate</span></div>`:'')}
+      <div class="ic-row"><span class="ic-k">Structure</span> ${s.available?`<a href="${s.viewer}" target="_blank">AlphaFold model</a> <span class="hint">(${esc(s.uniprot||'')})</span>`:'<span class="hint">not in AlphaFold DB</span>'}</div>
+      <div class="ic-row"><span class="ic-k">GTEx</span> ${gt.top_tissue?`${esc(gt.top_tissue)} <span class="hint">median ${gt.top_median_tpm} TPM</span>`:'<span class="hint">n/a</span>'}</div>
+      <div class="ic-row"><span class="ic-k">Action</span> <span class="hint">${esc(x.ko_action)}</span></div>
+      <div class="ic-links">${lk.opentargets?`<a href="${lk.opentargets}" target="_blank">Open Targets</a>`:''}
+        ${L.cbioportal?`<a href="${L.cbioportal.url}" target="_blank">cBioPortal</a>`:''}
+        ${lk.pubchem?`<a href="${lk.pubchem}" target="_blank">PubChem</a>`:''}
+        ${lk.genecards?`<a href="${lk.genecards}" target="_blank">GeneCards</a>`:''}</div>
+    </div>`;});
+  h+='</div>';$("intel").innerHTML=h;
+}
+
+function sigTable(classHits,entryHits){
+  const all=[...classHits,...entryHits];
+  if(!all.length){$("sigtab").innerHTML="<tr><td>No resistance-signature gene from this class is present/altered in the uploaded file.</td></tr>";return;}
+  let h="<tr><th>Gene</th><th>Source</th><th>Dir</th><th>log2FC</th><th>adj. p</th><th>sig</th></tr>";
+  all.forEach(x=>{const pj=(x.padj==null)?"&mdash;":Number(x.padj).toExponential(1);
+    h+=`<tr><td><b>${esc(x.gene)}</b></td>
+      <td><span class="badge ${x.source==="class"?"src-class":"src-entry"}">${x.source==="class"?"class signature":"cited in entry"}</span></td>
+      <td><span class="badge ${x.direction==="up"?"up":"down"}">${x.direction}</span></td>
+      <td>${x.log2fc>=0?"+":""}${Number(x.log2fc).toFixed(2)}</td>
+      <td style="color:#6b7280">${pj}</td>
+      <td>${x.sig?"&#10003;":"&mdash;"}</td></tr>`;});
+  $("sigtab").innerHTML=h;
+}
+
+function drawVolcano(v){
+  const mk=(arr,color,size,name,line)=>({x:arr.map(p=>p.log2fc),y:arr.map(p=>p.neglog10p),
+    text:arr.map(p=>p.feature),mode:arr.length<40?"markers+text":"markers",textposition:"top center",
+    textfont:{size:9,color:"#8a5a00"},type:"scatter",name,
+    marker:{size,color,line:{width:line||0,color:"#333"}},
+    hovertemplate:"%{text}<br>log2FC %{x}<br>-log10p %{y}<extra></extra>"});
+  const sigGenes=v.filter(p=>p.in_signature), entryGenes=v.filter(p=>p.in_entry&&!p.in_signature);
+  const rest=v.filter(p=>!p.in_signature&&!p.in_entry);
+  const ns=rest.filter(p=>!p.sig), sg=rest.filter(p=>p.sig);
+  Plotly.newPlot("volcano",[
+      mk(ns,GREY,5,"other genes"),
+      mk(sg,"#e79aa6",6,"significant DEG"),
+      mk(entryGenes,TEAL,11,"cited in entry",1.2),
+      mk(sigGenes,GOLD,13,"resistance signature",1.4)
+    ],
+    {title:{text:"Differential expression - resistance genes highlighted",font:{size:13,color:NAVY}},
+     xaxis:{title:"log2 fold change"},yaxis:{title:"-log10 p"},margin:{t:34,r:8,b:60,l:48},
+     legend:{orientation:"h",y:-0.22,font:{size:10}},
+     shapes:[-1,1].map(x=>({type:"line",x0:x,x1:x,y0:0,y1:1,yref:"paper",line:{dash:"dot",color:"#ccc"}}))},
+    {responsive:true,displayModeBar:false});
+}
+
+function driversTable(dr){
+  if(!dr||!dr.length){$("drivers").innerHTML="<tr><td>No differential genes to rank.</td></tr>";return;}
+  let h="<tr><th>#</th><th>Gene</th><th>Dir</th><th>log2FC</th><th>adj. p</th><th>score</th></tr>";
+  dr.forEach((x,i)=>{const pj=(x.padj==null)?"&mdash;":Number(x.padj).toExponential(1);
+    const gold=x.in_focus?'style="background:#faf6ec"':'';
+    h+=`<tr ${gold}><td>${i+1}</td><td><b>${esc(x.gene)}</b>${x.in_focus?' <span class="pill gold">signature</span>':''}</td>
+      <td><span class="badge ${x.direction==="up"?"up":"down"}">${x.direction}</span></td>
+      <td>${x.log2fc>=0?"+":""}${Number(x.log2fc).toFixed(2)}</td>
+      <td style="color:#6b7280">${pj}</td><td>${Number(x.score).toFixed(2)}</td></tr>`;});
+  $("drivers").innerHTML=h;
+}
+</script>
+</body>
+</html>

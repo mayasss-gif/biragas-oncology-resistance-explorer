@@ -1,0 +1,223 @@
+{
+ "target-mutation": {
+  "genes": [
+   "EGFR",
+   "ABL1",
+   "ALK",
+   "BTK",
+   "ESR1",
+   "AR",
+   "KIT",
+   "PDGFRA",
+   "ROS1",
+   "RET",
+   "MET",
+   "FLT3",
+   "KRAS",
+   "BRAF",
+   "IDH1",
+   "IDH2",
+   "JAK2",
+   "FGFR2",
+   "FGFR3",
+   "EZH2"
+  ],
+  "note": "Secondary/gatekeeper/solvent-front mutations in the drug target (EGFR T790M/C797S, BCR-ABL1 T315I, ALK G1202R, BTK C481S, ESR1, AR-V7)."
+ },
+ "bypass/parallel-pathway": {
+  "genes": [
+   "MET",
+   "ERBB2",
+   "ERBB3",
+   "AXL",
+   "FGFR1",
+   "IGF1R",
+   "PDGFRB",
+   "HGF",
+   "NRG1",
+   "GAS6",
+   "KRAS",
+   "NRAS",
+   "PIK3CA",
+   "CCNE1",
+   "CDK2",
+   "FGF2",
+   "KDR"
+  ],
+  "note": "A parallel RTK/effector reactivates downstream signaling around the blocked node (MET/HER2 amplification, RAS/PI3K, CDK2/CCNE1)."
+ },
+ "feedback-reactivation": {
+  "genes": [
+   "EGFR",
+   "ERBB2",
+   "ERBB3",
+   "IGF1R",
+   "FOXO3",
+   "SPRY2",
+   "DUSP6",
+   "MYC",
+   "SHC1",
+   "GAB1",
+   "MAP2K1",
+   "MAPK1"
+  ],
+  "note": "Blocking one node relieves feedback and reactivates the pathway (BRAF->EGFR in colon, MEK->RTK, adaptive upregulation)."
+ },
+ "pathway-redundancy": {
+  "genes": [
+   "PIK3CA",
+   "AKT1",
+   "AKT2",
+   "MTOR",
+   "PTEN",
+   "RICTOR",
+   "MAPK1",
+   "MAPK3",
+   "MAP2K1",
+   "RAF1",
+   "ITGB1",
+   "ITGB3",
+   "VEGFA",
+   "ANGPT2",
+   "PGF"
+  ],
+  "note": "Multiple parallel routes to the same phenotype make single-node blockade insufficient (integrins, angiogenic ligands, lymphocyte homing)."
+ },
+ "pharmacologic/efflux-metabolism": {
+  "genes": [
+   "ABCB1",
+   "ABCC1",
+   "ABCC2",
+   "ABCG2",
+   "CYP3A4",
+   "CYP2D6",
+   "GSTP1",
+   "UGT1A1",
+   "SLC22A1",
+   "SLCO1B1",
+   "NQO1",
+   "CES1",
+   "DCK"
+  ],
+  "note": "Drug efflux (P-gp/ABCB1, MRP, BCRP) or altered uptake/metabolism reduces intracellular exposure."
+ },
+ "DNA-repair/apoptosis-evasion": {
+  "genes": [
+   "BRCA1",
+   "BRCA2",
+   "TP53",
+   "ATM",
+   "ATR",
+   "RAD51",
+   "PARP1",
+   "CHEK1",
+   "CHEK2",
+   "ERCC1",
+   "PRKDC",
+   "BCL2",
+   "MCL1",
+   "BCL2L1",
+   "BAX",
+   "BAK1",
+   "XIAP",
+   "FANCD2"
+  ],
+  "note": "Enhanced DNA-damage repair or blocked apoptosis (ERCC1/HR, BRCA reversion, DNA-PK/ATM, TP53/BCL2 family)."
+ },
+ "antigen-escape": {
+  "genes": [
+   "CD19",
+   "MS4A1",
+   "CD22",
+   "CD33",
+   "TNFRSF17",
+   "EGFR",
+   "B2M",
+   "HLA-A",
+   "HLA-B",
+   "HLA-C",
+   "TAP1",
+   "TAP2",
+   "NLRC5"
+  ],
+  "note": "Loss/downregulation of the targeted antigen or its presentation (CD19 loss, EGFRvIII loss, BCMA loss, B2M/HLA loss)."
+ },
+ "TME/immune-exclusion": {
+  "genes": [
+   "CTNNB1",
+   "PTEN",
+   "TGFB1",
+   "VEGFA",
+   "IL10",
+   "FOXP3",
+   "CD274",
+   "IDO1",
+   "CXCL12",
+   "ARG1",
+   "ENTPD1",
+   "NT5E",
+   "CCL2",
+   "CSF1",
+   "HAVCR2",
+   "LAG3",
+   "HIF1A"
+  ],
+  "note": "A cold, T-cell-excluded or immunosuppressive microenvironment (low TMB, MDSC/TAM, WNT/beta-catenin, PTEN loss, desmoplasia, hypoxia)."
+ },
+ "lineage-plasticity/transformation": {
+  "genes": [
+   "ASCL1",
+   "NEUROD1",
+   "INSM1",
+   "SYP",
+   "CHGA",
+   "POU2F3",
+   "RB1",
+   "TP53",
+   "MYCN",
+   "SOX2",
+   "ZEB1",
+   "SNAI2",
+   "VIM",
+   "PROM1"
+  ],
+  "note": "Cells switch identity to escape target dependence (adeno-to-SCLC, neuroendocrine prostate, B-ALL to myeloid lineage switch)."
+ },
+ "correlate-not-driver": {
+  "genes": [
+   "IGF1R",
+   "IDO1",
+   "MET",
+   "GLI1",
+   "GLI2",
+   "SMO",
+   "MKI67",
+   "PCNA",
+   "TOP2A",
+   "MYC"
+  ],
+  "note": "Target/biomarker robustly associated with disease but NOT the causal dependency (IGF-1R, IDO1, MET-IHC, Hedgehog in CRC). BiRAGAS flags these as correlates, not drivers."
+ },
+ "on-mechanism-toxicity": {
+  "genes": [
+   "BRAF",
+   "MAP2K1",
+   "ERBB2",
+   "KDR",
+   "FLT4"
+  ],
+  "note": "An on-target/on-mechanism SAFETY liability, not a tumor-intrinsic escape program (paradoxical MAPK SCC, cardiac/CNS off-tumor T-cell attack, checkpoint autoimmunity)."
+ },
+ "combination-no-rationale": {
+  "genes": [
+   "IDO1",
+   "CD274",
+   "PDCD1"
+  ],
+  "note": "Agents combined on additive hope with no synergy (IDO1+PD-1, checkpoint+chemo unselected). A trial-design failure, not a tumor gene program."
+ },
+ "population-dilution": {
+  "genes": [],
+  "note": "Right drug, wrong (unenriched) population; responders averaged away below the endpoint threshold. A statistical/enrollment failure with NO tumor-intrinsic gene signature."
+ }
+}

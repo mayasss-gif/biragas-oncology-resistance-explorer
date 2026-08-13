@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+backend/_cache/
+.DS_Store
+.env
+*.log
+# never commit patient data
+Testing/
+Testing_2/
+*-degs.xlsx
